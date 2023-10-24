@@ -1,0 +1,131 @@
+---
+title: "Data 605 Homework 9"
+author: "Jean Jimenez"
+date: "2023-10-23"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Week 9 Homework {.tabset}
+
+**Question #11 Page 363:**
+
+A tourist in Las Vegas was attracted by a certain gambling game in which the customer stakes 1 dollar on each play; a win then pays the customer
+2 dollars plus the return of her stake, although a loss costs her only her stake.
+Las Vegas insiders, and alert students of probability theory, know that the
+probability of winning at this game is 1/4. When driven from the tables by
+hunger, the tourist had played this game 240 times. Assuming that no near
+miracles happened, about how much poorer was the tourist upon leaving the
+casino? What is the probability that she lost no money?
+
+## #1
+
+**Work and Answer**
+
+First, I established the givens of the problem. I calculated the expected amount won after 1 game then 240 games. I then calculated the amount of wins you would need to break even on playing.
+
+```{r}
+
+#prob of winning
+
+win_prob=0.25
+lose_prob=1-win_prob
+
+#exp val 1 game
+exp_1_game=(win_prob*3)+(lose_prob*-1)
+
+#after 240 games
+
+exp_240_gms=exp_1_game*240
+
+#num wins to break even
+break_even=240 %/% 3
+
+cat("The expected value of money gained in the casino game is",exp_240_gms, ". This indicates that the tourist is expected neither lose nor gain any money after 240 rounds. \n")
+
+#binom distr prob breaking even
+break_even_prob= choose(240,break_even)*(win_prob ^ break_even)* (lose_prob ^ (240 - break_even))
+
+cat("The probability that the tourist lost no money is",break_even_prob, "or", break_even_prob*100,"%. \n")
+```
+
+## #2
+
+**Question:**
+
+Calculate the expected value and variance of the binomial distribution using the moment generating function.
+
+**Work and Answer:**
+
+```{r}
+library(dplyr)
+
+#binomial moment generating funct
+
+mgf_binom= expression((win_prob*exp(t)+lose_prob)^break_even)
+
+#first derivative @t=0
+
+dx_binom= D(mgf_binom, "t")
+
+dx_binom_fn= function(t) eval(dx_binom)
+
+dx_binom_exp= dx_binom_fn(0)
+
+#2nd derivative @t=0
+dx2_binom=D(dx_binom,"t")
+
+dx2_binom_fn= function(t) eval(dx2_binom)
+
+second_moment_binom= dx2_binom_fn(0)
+
+#varience
+var_binom= second_moment_binom-dx_binom_exp^2
+
+cat("The expected value is", dx_binom_exp, ".\n")
+
+cat("The variance value is", var_binom, ".\n")
+```
+
+## #3
+
+**Question**
+
+Calculate the expected value and variance of the exponential distribution using the moment generating function.
+
+**Work and Answer:**
+
+```{r}
+#exp moment generating funct
+
+lambda=1
+
+mgf_exp= expression(lambda / (lambda - t))
+
+#first derivative @t=0
+
+dx_exp= D(mgf_exp, "t")
+
+dx_exp_fn= function(t) eval(dx_exp)
+
+dx_exp_exp= dx_exp_fn(0)
+
+#2nd derivative @t=0
+dx2_exp=D(dx_exp,"t")
+
+dx2_exp_fn= function(t) eval(dx2_exp)
+
+second_moment_exp= dx2_exp_fn(0)
+
+#varience
+var_exp= second_moment_exp-dx_exp_exp^2
+
+cat("The expected value is", dx_exp_exp, ".\n")
+
+cat("The variance value is", var_exp, ".\n")
+```
